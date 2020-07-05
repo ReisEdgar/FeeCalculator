@@ -6,7 +6,8 @@ namespace FileRepository
     public interface ITransactionRepository
     {
         IEnumerable<PaymentTransaction> GetTransactions();
-        IEnumerable<TransactionFee> GetTempTransactionFees();
+        IEnumerable<TransactionFee> GetTransactionFees();
+        void SaveTransactionFees(IEnumerable<TransactionFee> fees);
 
     }
 }

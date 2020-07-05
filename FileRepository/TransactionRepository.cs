@@ -15,7 +15,7 @@ namespace FileRepository
         {
             _configuration = configuration;
         }
-        public IEnumerable<TransactionFee> GetTempTransactionFees()
+        public IEnumerable<TransactionFee> GetTransactionFees()
         {
 
             var filePath = _configuration["tempFeeSaveFilePath"];
@@ -108,7 +108,7 @@ namespace FileRepository
                 return null;
             }
         }
-        public void SaveTempTransactionFees(IEnumerable<TransactionFee> fees)
+        public void SaveTransactionFees(IEnumerable<TransactionFee> fees)
         {
             var filePath = _configuration["tempFeeSaveFilePath"];
             using (StreamWriter file = new StreamWriter(filePath))
