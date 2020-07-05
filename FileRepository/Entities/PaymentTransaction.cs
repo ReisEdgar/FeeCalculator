@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FileRepository.Models
 {
-    public class TransactionModel
+    public class PaymentTransaction
     {
         public DateTime PaymentDate { get; set; }
         public string MerchantName { get; set; }

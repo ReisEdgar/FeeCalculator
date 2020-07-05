@@ -5,6 +5,6 @@ namespace Logic.Mappers
 {
     public interface ITransactionMapper
     {
-        TransactionDto MapTransaction(TransactionModel transaction);
+        TransactionDto MapTransaction(PaymentTransaction transaction);
     }
 }

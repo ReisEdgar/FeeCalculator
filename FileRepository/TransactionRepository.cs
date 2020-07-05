@@ -15,7 +15,7 @@ namespace FileRepository
         {
             _configuration = configuration;
         }
-        public IEnumerable<TransactionFeeModel> GetTempTransactionFees()
+        public IEnumerable<TransactionFee> GetTempTransactionFees()
         {
 
             var filePath = _configuration["tempFeeSaveFilePath"];
@@ -44,7 +44,7 @@ namespace FileRepository
                 }
             }
         }
-        public IEnumerable<TransactionModel> GetTransactions()
+        public IEnumerable<PaymentTransaction> GetTransactions()
         {
 
             var filePath = _configuration["transactionsFilePath"];
@@ -74,11 +74,11 @@ namespace FileRepository
             }
         }
 
-        private TransactionModel CreateTransaction(string[] transactionData)
+        private PaymentTransaction CreateTransaction(string[] transactionData)
         {
             try
             {
-                return new TransactionModel
+                return new PaymentTransaction
                 {
                     PaymentDate = DateTime.Parse(transactionData[0]),
                     MerchantName = transactionData[1],
@@ -91,11 +91,11 @@ namespace FileRepository
                 return null;
             }
         }
-        private TransactionFeeModel CreateTransactionFee(string[] feeData)
+        private TransactionFee CreateTransactionFee(string[] feeData)
         {
             try
             {
-                return new TransactionFeeModel
+                return new TransactionFee
                 {
                     PaymentDate = DateTime.Parse(feeData[0]),
                     MerchantName = feeData[1],
@@ -108,7 +108,7 @@ namespace FileRepository
                 return null;
             }
         }
-        public void SaveTempTransactionFees(IEnumerable<TransactionFeeModel> fees)
+        public void SaveTempTransactionFees(IEnumerable<TransactionFee> fees)
         {
             var filePath = _configuration["tempFeeSaveFilePath"];
             using (StreamWriter file = new StreamWriter(filePath))
