@@ -18,14 +18,26 @@ namespace Logic.Mappers
                 PaymentDate = transaction.PaymentDate
             };
         }
-        public TransactionFee MapTransactionFee(TransactionFeeModel transaction)
+        public TransactionFee MapTransactionFee(TransactionFeeModel fee)
         {
             return new TransactionFee
             {
-                MerchantName = transaction.MerchantName,
-                FeeAmount = transaction.FeeAmount,
-                PaymentDate = transaction.PaymentDate
+                MerchantName = fee.MerchantName,
+                FeeAmount = fee.FeeAmount,
+                PaymentDate = fee.PaymentDate
             };
+        }
+        public IEnumerable<TransactionFee> MapTransactionFees(IEnumerable<TransactionFeeModel> fees)
+        {
+            foreach (var fee in fees)
+            {
+                yield return new TransactionFee
+                {
+                    MerchantName = fee.MerchantName,
+                    FeeAmount = fee.FeeAmount,
+                    PaymentDate = fee.PaymentDate
+                };
+            }
         }
         public TransactionFeeModel MapTransactionFee(TransactionFee transaction)
         {
