@@ -22,9 +22,22 @@ namespace Logic
             _transactionRepository = transactionRepository;
             _transactionMapper = transactionMapper;
         }
+
         public IEnumerable<TransactionFeeModel> GetAllTransactionFees()
         {
-            foreach(var transaction in _transactionRepository.GetTransactions())
+            var fees = GetStandardFeeForeachTransaction();
+            SaveTransactionFeesToFile(fees);
+
+        }
+        private void SaveTransactionFeesToFile(IEnumerable<TransactionFeeModel> fees)
+        {
+            var entityFees = _transactionMapper.MapTransactionFees(fees);
+            _transactionRepository.SaveTransactionFees(entityFees);
+        }
+
+        private IEnumerable<TransactionFeeModel> GetStandardFeeForeachTransaction()
+        {
+            foreach (var transaction in _transactionRepository.GetTransactions())
             {
                 if(transaction == null)
                 {
@@ -54,6 +67,39 @@ namespace Logic
             };
             return transactionFee;
         }
+        private IEnumerable<Dictionary<string, double>> GetTotalMonthlyFees()
+        {
+            var merchantMonthlyTotalFees = new Dictionary<string, double>();
+            var previousMonth = new DateTime();
+            var firstIteration = true;
+            foreach (var fee in _transactionRepository.GetTempTransactionFees())
+            {
+                var exists = merchantMonthlyTotalFees.ContainsKey(fee.MerchantName);
+                var month = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
+                if (firstIteration)
+                {
+                    previousMonth = month;
+                    firstIteration = false;
+                }
+                else
+                {
+                    if(month != previousMonth)
+                    {
+                        yield return merchantMonthlyTotalFees;
+                        previousMonth = month;
+                        merchantMonthlyTotalFees = new Dictionary<string, double>();
+                    }
+                }
 
+                if (exists)
+                {
+                    merchantMonthlyTotalFees[fee.MerchantName] += fee.FeeAmount;
+                }
+                else
+                {
+                    merchantMonthlyTotalFees.Add(fee.MerchantName, 0);
+                }
+            }
+        }
     }
 }
