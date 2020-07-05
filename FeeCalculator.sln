@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeeCalculator", "FeeCalculator\FeeCalculator.csproj", "{0B161F87-55D1-4EED-A1D3-B5C0E64845BD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", "{68A39366-DACB-41C7-917D-D4578CDD1489}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileRepository", "FileRepository\FileRepository.csproj", "{EE19ADB7-8772-43C0-84D1-43F596AACE24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +19,16 @@ Global
 		{0B161F87-55D1-4EED-A1D3-B5C0E64845BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B161F87-55D1-4EED-A1D3-B5C0E64845BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B161F87-55D1-4EED-A1D3-B5C0E64845BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE19ADB7-8772-43C0-84D1-43F596AACE24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE19ADB7-8772-43C0-84D1-43F596AACE24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE19ADB7-8772-43C0-84D1-43F596AACE24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE19ADB7-8772-43C0-84D1-43F596AACE24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EE19ADB7-8772-43C0-84D1-43F596AACE24} = {68A39366-DACB-41C7-917D-D4578CDD1489}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F64B6148-6B17-4256-80C6-C9D66B4AA781}
