@@ -26,6 +26,12 @@ namespace Logic
         {
             foreach(var transaction in _transactionRepository.GetTransactions())
             {
+                if(transaction == null)
+                {
+                    // Log error details
+                    continue;
+                }
+
                 var transactionDto = _transactionMapper.MapTransaction(transaction);
                 var fee = GetSingleTransactionFee(transactionDto);
                 yield return fee;
