@@ -1,7 +1,10 @@
-﻿using Logic.Models;
+﻿using FileRepository;
+using Logic.Mappers;
+using Logic.Models;
 using Logic.Models.Dto;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 
 namespace Logic
 {
@@ -9,13 +12,26 @@ namespace Logic
     {
         private readonly IConfiguration _configuration;
         private readonly ITransactionDiscountService _transactionDiscountService;
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly ITransactionMapper _transactionMapper;
 
-        public TransactionFeeService(IConfiguration configuration, ITransactionDiscountService transactionDiscountService)
+        public TransactionFeeService(IConfiguration configuration, ITransactionDiscountService transactionDiscountService, ITransactionRepository transactionRepository, ITransactionMapper transactionMapper)
         {
             _configuration = configuration;
             _transactionDiscountService = transactionDiscountService;
+            _transactionRepository = transactionRepository;
+            _transactionMapper = transactionMapper;
         }
-        public TransactionFeeModel GetTransactionFee(TransactionDto transaction)
+        public IEnumerable<TransactionFeeModel> GetAllTransactionFees()
+        {
+            foreach(var transaction in _transactionRepository.GetTransactions())
+            {
+                var transactionDto = _transactionMapper.MapTransaction(transaction);
+                var fee = GetSingleTransactionFee(transactionDto);
+                yield return fee;
+            }
+        }
+        private TransactionFeeModel GetSingleTransactionFee(TransactionDto transaction)
         {
             var fee = ApplyTransactionFee(transaction);
             fee = _transactionDiscountService.ApplyTransactionDiscount(fee);
