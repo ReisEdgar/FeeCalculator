@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using System.Configuration;
 using System.Collections.Generic;
 using System.Reflection;
+using Presentation.Mappers;
+using Presentation;
 
 namespace Infrastructure
 {
@@ -18,6 +20,8 @@ namespace Infrastructure
             Register<ITransactionFeeService, TransactionFeeService>();
             Register<ITransactionDiscountService, TransactionDiscountService>();
             Register<ITransactionMapper, TransactionMapper>();
+            Register<ITransactionFeeMapper, TransactionFeeMapper>();
+            Register<ITransactionFeeDisplay, TransactionFeeDisplay>();
 
         }
         static readonly IDictionary<Type, Type> types = new Dictionary<Type, Type>();
