@@ -25,14 +25,14 @@ namespace Logic
 
         public IEnumerable<IEnumerable<TransactionFeeModel>> GetMonthlyTransactionFees()
         {
-            var fees = GetStandardFeeForeachTransaction().ToList();
+            var fees = GetStandardFeeForeachTransaction();
             return ApplyInvoiceFeesForeachMonth(fees);
         }
 
         public IEnumerable<IEnumerable<TransactionFeeModel>> ApplyInvoiceFeesForeachMonth(IEnumerable<TransactionFeeModel> fees)
         {
             SaveTransactionFeesToFile(fees);
-            var totalMonthlyFees = GetTotalMonthlyFees().ToList();
+            var totalMonthlyFees = GetTotalMonthlyFees();
             var entityFees = _transactionRepository.GetTransactionFees();
             var feeEnumerator = entityFees.GetEnumerator();
             feeEnumerator.MoveNext();
@@ -49,11 +49,8 @@ namespace Logic
             var month = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
 
             var currentMonth = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
-
             while (month == currentMonth)
             {
-                fee = _transactionMapper.MapTransactionFee(feeEnumerator.Current);
-                currentMonth = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
                 var invoiceTaxApplied = merchantWithAppliedInvoiceFee.ContainsKey(fee.MerchantName);
                 if (!invoiceTaxApplied)
                 {
@@ -65,6 +62,8 @@ namespace Logic
                 var hasNext = feeEnumerator.MoveNext();
                 if (!hasNext)
                     break;
+                fee = _transactionMapper.MapTransactionFee(feeEnumerator.Current);
+                currentMonth = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
             }
         }
 
@@ -137,7 +136,7 @@ namespace Logic
                 }
                 else
                 {
-                    merchantMonthlyTotalFees.Add(fee.MerchantName, 0);
+                    merchantMonthlyTotalFees.Add(fee.MerchantName, fee.FeeAmount);
                 }
             }
             yield return merchantMonthlyTotalFees;
