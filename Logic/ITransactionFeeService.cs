@@ -1,11 +1,10 @@
-﻿using Logic.Models;
-using Logic.Models.Dto;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Logic.Models;
 
 namespace Logic
 {
     public interface ITransactionFeeService
     {
-        IEnumerable<TransactionFeeModel> GetAllTransactionFees();
+        IEnumerable<IEnumerable<TransactionFeeModel>> GetMonthlyTransactionFees();
     }
 }

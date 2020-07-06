@@ -4,21 +4,18 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using FileRepository.Models;
 using System.IO;
+using Configuration;
+using System.Text.RegularExpressions;
 
 namespace FileRepository
 {
     public class TransactionRepository : ITransactionRepository
     {
-        private readonly IConfiguration _configuration;
 
-        public TransactionRepository(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
         public IEnumerable<TransactionFee> GetTransactionFees()
         {
 
-            var filePath = _configuration["tempFeeSaveFilePath"];
+            var filePath = ConfigProvider.FeeSaveFilePath;
 
             using (StreamReader file = new StreamReader(filePath))
             {
@@ -26,10 +23,12 @@ namespace FileRepository
 
                 try
                 {
-                    while ((line = file.ReadLine()) != null)
+
+
+                        while ((line = file.ReadLine()) != null)
                     {
-                        line = line.TrimEnd().TrimStart();
-                        if (line == "")
+                        line = line?.Trim();
+                        if (line == "" || line == null)
                         {
                             continue;
                         }
@@ -47,7 +46,7 @@ namespace FileRepository
         public IEnumerable<PaymentTransaction> GetTransactions()
         {
 
-            var filePath = _configuration["transactionsFilePath"];
+            var filePath = ConfigProvider.TransactionsFilePath;
 
             using (StreamReader file = new StreamReader(filePath))
             {
@@ -55,10 +54,11 @@ namespace FileRepository
 
                 try
                 {
-                    while ((line = file.ReadLine()) != null)
+                    while (file.Peek() >= 0)
                     {
-                        line = line.TrimEnd().TrimStart();
-                        if (line == "")
+                        line = file.ReadLine();
+                        line = Regex.Replace(line, @"\s+", " ");
+                        if (line == "" || line == null)
                         {
                             continue;
                         }
@@ -110,14 +110,14 @@ namespace FileRepository
         }
         public void SaveTransactionFees(IEnumerable<TransactionFee> fees)
         {
-            var filePath = _configuration["tempFeeSaveFilePath"];
+            var filePath = ConfigProvider.FeeSaveFilePath;
             using (StreamWriter file = new StreamWriter(filePath))
             {
                 try
                 {
                     foreach (var fee in fees)
                     {
-                        var stringFee = $"{fee.PaymentDate} {fee.MerchantName} {fee.FeeAmount}";
+                        var stringFee = $"{fee.PaymentDate.ToShortDateString()} {fee.MerchantName} {fee.FeeAmount} \n";
                         file.Write(stringFee);
                     }
                 }

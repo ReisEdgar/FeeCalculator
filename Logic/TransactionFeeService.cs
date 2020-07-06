@@ -1,34 +1,74 @@
-﻿using FileRepository;
+﻿using Configuration;
+using FileRepository;
+using FileRepository.Models;
 using Logic.Mappers;
 using Logic.Models;
 using Logic.Models.Dto;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Logic
 {
     public class TransactionFeeService : ITransactionFeeService
     {
-        private readonly IConfiguration _configuration;
         private readonly ITransactionDiscountService _transactionDiscountService;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionMapper _transactionMapper;
 
-        public TransactionFeeService(IConfiguration configuration, ITransactionDiscountService transactionDiscountService, ITransactionRepository transactionRepository, ITransactionMapper transactionMapper)
+        public TransactionFeeService(ITransactionDiscountService transactionDiscountService, ITransactionRepository transactionRepository, ITransactionMapper transactionMapper)
         {
-            _configuration = configuration;
             _transactionDiscountService = transactionDiscountService;
             _transactionRepository = transactionRepository;
             _transactionMapper = transactionMapper;
         }
 
-        public IEnumerable<TransactionFeeModel> GetAllTransactionFees()
+        public IEnumerable<IEnumerable<TransactionFeeModel>> GetMonthlyTransactionFees()
         {
-            var fees = GetStandardFeeForeachTransaction();
-            SaveTransactionFeesToFile(fees);
-
+            var fees = GetStandardFeeForeachTransaction().ToList();
+            return ApplyInvoiceFeesForeachMonth(fees);
         }
+
+        public IEnumerable<IEnumerable<TransactionFeeModel>> ApplyInvoiceFeesForeachMonth(IEnumerable<TransactionFeeModel> fees)
+        {
+            SaveTransactionFeesToFile(fees);
+            var totalMonthlyFees = GetTotalMonthlyFees().ToList();
+            var entityFees = _transactionRepository.GetTransactionFees();
+            var feeEnumerator = entityFees.GetEnumerator();
+            feeEnumerator.MoveNext();
+            foreach (var totalFeesForSingleMonth in totalMonthlyFees)
+            {
+                yield return ApplyInvoiceFeeForSingleMonth(feeEnumerator, totalFeesForSingleMonth);
+            }
+        }
+
+        private IEnumerable<TransactionFeeModel> ApplyInvoiceFeeForSingleMonth(IEnumerator<TransactionFee> feeEnumerator, Dictionary<string, double> totalMonthlyFees)
+        {
+            var merchantWithAppliedInvoiceFee = new Dictionary<string, bool>();
+            var fee = _transactionMapper.MapTransactionFee(feeEnumerator.Current);
+            var month = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
+
+            var currentMonth = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
+
+            while (month == currentMonth)
+            {
+                fee = _transactionMapper.MapTransactionFee(feeEnumerator.Current);
+                currentMonth = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
+                var invoiceTaxApplied = merchantWithAppliedInvoiceFee.ContainsKey(fee.MerchantName);
+                if (!invoiceTaxApplied)
+                {
+                    var totalMonthlyFee = totalMonthlyFees[fee.MerchantName];
+                    merchantWithAppliedInvoiceFee.Add(fee.MerchantName, true);
+                    fee.FeeAmount += totalMonthlyFee > 0 ? Double.Parse(ConfigProvider.FixedInvoiceFee) : 0;
+                }
+                yield return fee;
+                var hasNext = feeEnumerator.MoveNext();
+                if (!hasNext)
+                    break;
+            }
+        }
+
+
         private void SaveTransactionFeesToFile(IEnumerable<TransactionFeeModel> fees)
         {
             var entityFees = _transactionMapper.MapTransactionFees(fees);
@@ -39,7 +79,7 @@ namespace Logic
         {
             foreach (var transaction in _transactionRepository.GetTransactions())
             {
-                if(transaction == null)
+                if (transaction == null)
                 {
                     // Log error details
                     continue;
@@ -58,7 +98,7 @@ namespace Logic
         }
         private TransactionFeeModel ApplyTransactionFee(TransactionDto transaction)
         {
-            var transactionFeePercentage = Double.Parse(_configuration["transactionFeePercentage"]);
+            var transactionFeePercentage = Double.Parse(ConfigProvider.TransactionFeePercentage);
             var transactionFee = new TransactionFeeModel
             {
                 MerchantName = transaction.MerchantName,
@@ -72,9 +112,8 @@ namespace Logic
             var merchantMonthlyTotalFees = new Dictionary<string, double>();
             var previousMonth = new DateTime();
             var firstIteration = true;
-            foreach (var fee in _transactionRepository.GetTempTransactionFees())
+            foreach (var fee in _transactionRepository.GetTransactionFees())
             {
-                var exists = merchantMonthlyTotalFees.ContainsKey(fee.MerchantName);
                 var month = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
                 if (firstIteration)
                 {
@@ -83,13 +122,14 @@ namespace Logic
                 }
                 else
                 {
-                    if(month != previousMonth)
+                    if (month != previousMonth)
                     {
                         yield return merchantMonthlyTotalFees;
                         previousMonth = month;
                         merchantMonthlyTotalFees = new Dictionary<string, double>();
                     }
                 }
+                var exists = merchantMonthlyTotalFees.ContainsKey(fee.MerchantName);
 
                 if (exists)
                 {
@@ -100,6 +140,7 @@ namespace Logic
                     merchantMonthlyTotalFees.Add(fee.MerchantName, 0);
                 }
             }
+            yield return merchantMonthlyTotalFees;
         }
     }
 }
