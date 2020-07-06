@@ -1,12 +1,5 @@
-﻿using FileRepository;
-using Infrastructure;
-using Logic;
-using Logic.Mappers;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Infrastructure;
 using Presentation;
-using System;
-using System.Linq;
 
 namespace FeeCalculator
 {

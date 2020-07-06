@@ -1,7 +1,6 @@
 ﻿using System.Configuration;
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using FileRepository.Models;
 using System.IO;
 using Configuration;

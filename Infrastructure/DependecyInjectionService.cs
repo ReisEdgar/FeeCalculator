@@ -1,10 +1,7 @@
 ﻿using Logic.Mappers;
 using Logic;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using FileRepository;
-using Microsoft.Extensions.Configuration;
-using System.Configuration;
 using System.Collections.Generic;
 using System.Reflection;
 using Presentation.Mappers;
