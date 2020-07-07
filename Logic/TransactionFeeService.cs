@@ -12,27 +12,25 @@ namespace Logic
 {
     public class TransactionFeeService : ITransactionFeeService
     {
-        private readonly ITransactionDiscountService _transactionDiscountService;
+        private readonly ITransactionFeeDiscountService _transactionDiscountService;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionMapper _transactionMapper;
 
-        public TransactionFeeService(ITransactionDiscountService transactionDiscountService, ITransactionRepository transactionRepository, ITransactionMapper transactionMapper)
+        public TransactionFeeService(ITransactionFeeDiscountService transactionDiscountService, ITransactionRepository transactionRepository, ITransactionMapper transactionMapper)
         {
             _transactionDiscountService = transactionDiscountService;
             _transactionRepository = transactionRepository;
             _transactionMapper = transactionMapper;
         }
-
         public IEnumerable<IEnumerable<TransactionFeeModel>> GetMonthlyTransactionFees()
         {
             var fees = GetStandardFeeForeachTransaction();
             return ApplyInvoiceFeesForeachMonth(fees);
         }
-
         public IEnumerable<IEnumerable<TransactionFeeModel>> ApplyInvoiceFeesForeachMonth(IEnumerable<TransactionFeeModel> fees)
         {
             SaveTransactionFeesToFile(fees);
-            var totalMonthlyFees = GetTotalMonthlyFees();
+            var totalMonthlyFees = GetSumOfFeesForeachMonth();
             var entityFees = _transactionRepository.GetTransactionFees();
             var feeEnumerator = entityFees.GetEnumerator();
             feeEnumerator.MoveNext();
@@ -41,8 +39,7 @@ namespace Logic
                 yield return ApplyInvoiceFeeForSingleMonth(feeEnumerator, totalFeesForSingleMonth);
             }
         }
-
-        private IEnumerable<TransactionFeeModel> ApplyInvoiceFeeForSingleMonth(IEnumerator<TransactionFee> feeEnumerator, Dictionary<string, double> totalMonthlyFees)
+        public IEnumerable<TransactionFeeModel> ApplyInvoiceFeeForSingleMonth(IEnumerator<TransactionFee> feeEnumerator, Dictionary<string, double> totalMonthlyFees)
         {
             var merchantWithAppliedInvoiceFee = new Dictionary<string, bool>();
             var fee = _transactionMapper.MapTransactionFee(feeEnumerator.Current);
@@ -66,15 +63,12 @@ namespace Logic
                 currentMonth = new DateTime(fee.PaymentDate.Year, fee.PaymentDate.Month, 1);
             }
         }
-
-
-        private void SaveTransactionFeesToFile(IEnumerable<TransactionFeeModel> fees)
+        public void SaveTransactionFeesToFile(IEnumerable<TransactionFeeModel> fees)
         {
             var entityFees = _transactionMapper.MapTransactionFees(fees);
             _transactionRepository.SaveTransactionFees(entityFees);
         }
-
-        private IEnumerable<TransactionFeeModel> GetStandardFeeForeachTransaction()
+        public IEnumerable<TransactionFeeModel> GetStandardFeeForeachTransaction()
         {
             foreach (var transaction in _transactionRepository.GetTransactions())
             {
@@ -85,17 +79,17 @@ namespace Logic
                 }
 
                 var transactionDto = _transactionMapper.MapTransaction(transaction);
-                var fee = GetSingleTransactionFee(transactionDto);
+                var fee = GetTransactionFee(transactionDto);
                 yield return fee;
             }
         }
-        private TransactionFeeModel GetSingleTransactionFee(TransactionDto transaction)
+        public TransactionFeeModel GetTransactionFee(TransactionDto transaction)
         {
             var fee = ApplyTransactionFee(transaction);
             fee = _transactionDiscountService.ApplyTransactionDiscount(fee);
             return fee;
         }
-        private TransactionFeeModel ApplyTransactionFee(TransactionDto transaction)
+        public TransactionFeeModel ApplyTransactionFee(TransactionDto transaction)
         {
             var transactionFeePercentage = Double.Parse(ConfigProvider.TransactionFeePercentage);
             var transactionFee = new TransactionFeeModel
@@ -106,7 +100,7 @@ namespace Logic
             };
             return transactionFee;
         }
-        private IEnumerable<Dictionary<string, double>> GetTotalMonthlyFees()
+        public IEnumerable<Dictionary<string, double>> GetSumOfFeesForeachMonth()
         {
             var merchantMonthlyTotalFees = new Dictionary<string, double>();
             var previousMonth = new DateTime();

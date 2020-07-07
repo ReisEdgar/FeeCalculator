@@ -15,7 +15,7 @@ namespace Infrastructure
         {
             Register<ITransactionRepository, TransactionRepository>();
             Register<ITransactionFeeService, TransactionFeeService>();
-            Register<ITransactionDiscountService, TransactionDiscountService>();
+            Register<ITransactionFeeDiscountService, TransactionFeeDiscountService>();
             Register<ITransactionMapper, TransactionMapper>();
             Register<ITransactionFeeMapper, TransactionFeeMapper>();
             Register<ITransactionFeeDisplay, TransactionFeeDisplay>();

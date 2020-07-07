@@ -22,8 +22,6 @@ namespace FileRepository
 
                 try
                 {
-
-
                         while ((line = file.ReadLine()) != null)
                     {
                         line = line?.Trim();

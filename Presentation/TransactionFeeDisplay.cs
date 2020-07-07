@@ -1,6 +1,7 @@
 ﻿using Logic;
 using Presentation.Mappers;
 using System;
+using System.Globalization;
 
 namespace Presentation
 {
@@ -15,13 +16,13 @@ namespace Presentation
         }
         public void DisplayTransactionFees()
         {
-            var months = _transactionFeeService.GetMonthlyTransactionFees();
-            foreach (var feesForMonth in months)
+            var monthlyFees = _transactionFeeService.GetMonthlyTransactionFees();
+            foreach (var feesForMonth in monthlyFees)
             {
                 foreach (var fee in feesForMonth)
                 {
                     var feeForDisplay = _transactionFeeMapper.MapTransactionFee(fee);
-                    Console.WriteLine($"{fee.PaymentDate.ToShortDateString(),-10} {fee.MerchantName,-10} {fee.FeeAmount,-10}");
+                    Console.WriteLine($"{fee.PaymentDate.ToShortDateString(),-10} {fee.MerchantName,-10} {fee.FeeAmount.ToString("0.00", new CultureInfo("en-US")),-10}");
                 }
                 Console.WriteLine("");
             }

@@ -2,7 +2,7 @@
 
 namespace Logic
 {
-    public interface ITransactionDiscountService
+    public interface ITransactionFeeDiscountService
     {
         TransactionFeeModel ApplyTransactionDiscount(TransactionFeeModel fee);
     }

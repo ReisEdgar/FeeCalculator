@@ -4,7 +4,7 @@ using System;
 
 namespace Logic
 {
-    public class TransactionDiscountService : ITransactionDiscountService
+    public class TransactionFeeDiscountService : ITransactionFeeDiscountService
     {
 
         public TransactionFeeModel ApplyTransactionDiscount(TransactionFeeModel fee)
