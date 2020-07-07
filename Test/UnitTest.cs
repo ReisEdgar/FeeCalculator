@@ -1,3 +1,4 @@
+using Configuration;
 using FileRepository;
 using FileRepository.Models;
 using Logic;
@@ -17,7 +18,7 @@ namespace UnitTe
         [Fact]
         public void ApplyDiscount_ExistingMerchant_DiscoutApplied()
         {
-            var transactionFeeDiscountService = new TransactionFeeDiscountService();
+            var transactionFeeDiscountService = new TransactionFeeDiscountService(new ConfigProvider());
             var fee = new TransactionFeeModel()
             {
                 FeeAmount = 1,
@@ -29,7 +30,7 @@ namespace UnitTe
         [Fact]
         public void ApplyDiscount_NonExistingMerchant_FeeUnchanged()
         {
-            var transactionFeeDiscountService = new TransactionFeeDiscountService();
+            var transactionFeeDiscountService = new TransactionFeeDiscountService(new ConfigProvider());
             var fee = new TransactionFeeModel()
             {
                 FeeAmount = 1,
@@ -46,7 +47,7 @@ namespace UnitTe
 
             mock.Setup(x => x.GetTransactions()).Returns(transactions);
 
-            var transactionFeeService = new TransactionFeeService(new TransactionFeeDiscountService(), mock.Object, new TransactionMapper());
+            var transactionFeeService = new TransactionFeeService(new TransactionFeeDiscountService(new ConfigProvider()), mock.Object, new TransactionMapper(), new ConfigProvider());
             var fees = transactionFeeService.GetStandardFeeForeachTransaction();
             Assert.Equal(expected, fees.First().FeeAmount);
 
@@ -60,7 +61,7 @@ namespace UnitTe
 
             mock.Setup(x => x.GetTransactionFees()).Returns(fees);
 
-            var transactionFeeService = new TransactionFeeService(new TransactionFeeDiscountService(), mock.Object, new TransactionMapper());
+            var transactionFeeService = new TransactionFeeService(new TransactionFeeDiscountService(new ConfigProvider()), mock.Object, new TransactionMapper(), new ConfigProvider());
             foreach (var sumFeeForeachMonth in transactionFeeService.GetSumOfFeesForeachMonth())
             {
                 Assert.Equal(expected1, sumFeeForeachMonth["Merchant"]);
@@ -75,7 +76,7 @@ namespace UnitTe
 
             mock.Setup(x => x.GetTransactionFees()).Returns(fees);
 
-            var transactionFeeService = new TransactionFeeService(new TransactionFeeDiscountService(), mock.Object, new TransactionMapper());
+            var transactionFeeService = new TransactionFeeService(new TransactionFeeDiscountService(new ConfigProvider()), mock.Object, new TransactionMapper(), new ConfigProvider());
             var sumFeeForeachMonth = transactionFeeService.GetSumOfFeesForeachMonth();
             var feeEnumerator = fees.GetEnumerator();
             feeEnumerator.MoveNext();

@@ -10,11 +10,15 @@ namespace FileRepository
 {
     public class TransactionRepository : ITransactionRepository
     {
-
+        private readonly IConfigProvider _configProvider;
+        public TransactionRepository(IConfigProvider configProvider)
+        {
+            _configProvider = configProvider;
+        }
         public IEnumerable<TransactionFee> GetTransactionFees()
         {
 
-            var filePath = ConfigProvider.FeeSaveFilePath;
+            var filePath = _configProvider.ConfigurationProperties["feeSaveFilePath"];
 
             using (StreamReader file = new StreamReader(filePath))
             {
@@ -43,7 +47,7 @@ namespace FileRepository
         public IEnumerable<PaymentTransaction> GetTransactions()
         {
 
-            var filePath = ConfigProvider.TransactionsFilePath;
+            var filePath = _configProvider.ConfigurationProperties["transactionsFilePath"];
 
             using (StreamReader file = new StreamReader(filePath))
             {
@@ -107,7 +111,7 @@ namespace FileRepository
         }
         public void SaveTransactionFees(IEnumerable<TransactionFee> fees)
         {
-            var filePath = ConfigProvider.FeeSaveFilePath;
+            var filePath = _configProvider.ConfigurationProperties["feeSaveFilePath"];
             using (StreamWriter file = new StreamWriter(filePath))
             {
                 try

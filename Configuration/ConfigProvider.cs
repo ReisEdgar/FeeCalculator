@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Configuration
 {
-    public class ConfigProvider
+    public class ConfigProvider : IConfigProvider
     {
-        public static string FeeSaveFilePath { get; } = "C:\\Users\\Ivan\\source\\repos\\FeeCalculator\\fees.txt";
-        public static string TransactionsFilePath { get; } = "C:\\Users\\Ivan\\source\\repos\\FeeCalculator\\transactions.txt";
-        public static string TeliaGenericDiscount { get; } = "0,1";
-        public static string CircleKGenericDiscount { get; } = "0,2";
-        public static string FixedInvoiceFee { get; } = "29";
-        public static string TransactionFeePercentage { get; } = "0,01";
+        public Dictionary<string, string> ConfigurationProperties { get; } = new Dictionary<string, string>()
+        {
+            { "feeSaveFilePath", "C:\\Users\\Ivan\\source\\repos\\FeeCalculator\\fees.txt" },
+            { "transactionsFilePath", "C:\\Users\\Ivan\\source\\repos\\FeeCalculator\\transactions.txt" },
+            { "teliaGenericDiscount", "0,1" },
+            { "circleKGenericDiscount", "0,2" },
+            { "fixedInvoiceFee", "29" },
+            { "transactionFeePercentage", "0,01" }
+        };
+
     }
 }

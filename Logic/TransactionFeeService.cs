@@ -15,12 +15,14 @@ namespace Logic
         private readonly ITransactionFeeDiscountService _transactionDiscountService;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionMapper _transactionMapper;
+        private readonly IConfigProvider _configProvider;
 
-        public TransactionFeeService(ITransactionFeeDiscountService transactionDiscountService, ITransactionRepository transactionRepository, ITransactionMapper transactionMapper)
+        public TransactionFeeService(ITransactionFeeDiscountService transactionDiscountService, ITransactionRepository transactionRepository, ITransactionMapper transactionMapper, IConfigProvider configProvider)
         {
             _transactionDiscountService = transactionDiscountService;
             _transactionRepository = transactionRepository;
             _transactionMapper = transactionMapper;
+            _configProvider = configProvider;
         }
         public IEnumerable<IEnumerable<TransactionFeeModel>> GetMonthlyTransactionFees()
         {
@@ -53,7 +55,7 @@ namespace Logic
                 {
                     var totalMonthlyFee = totalMonthlyFees[fee.MerchantName];
                     merchantWithAppliedInvoiceFee.Add(fee.MerchantName, true);
-                    fee.FeeAmount += totalMonthlyFee > 0 ? Double.Parse(ConfigProvider.FixedInvoiceFee) : 0;
+                    fee.FeeAmount += totalMonthlyFee > 0 ? Double.Parse(_configProvider.ConfigurationProperties["fixedInvoiceFee"]) : 0;
                 }
                 yield return fee;
                 var hasNext = feeEnumerator.MoveNext();
@@ -91,7 +93,7 @@ namespace Logic
         }
         public TransactionFeeModel ApplyTransactionFee(TransactionDto transaction)
         {
-            var transactionFeePercentage = Double.Parse(ConfigProvider.TransactionFeePercentage);
+            var transactionFeePercentage = Double.Parse(_configProvider.ConfigurationProperties["transactionFeePercentage"]);
             var transactionFee = new TransactionFeeModel
             {
                 MerchantName = transaction.MerchantName,

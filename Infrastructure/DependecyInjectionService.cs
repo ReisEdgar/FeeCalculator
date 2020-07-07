@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Presentation.Mappers;
 using Presentation;
+using Configuration;
 
 namespace Infrastructure
 {
@@ -19,6 +20,7 @@ namespace Infrastructure
             Register<ITransactionMapper, TransactionMapper>();
             Register<ITransactionFeeMapper, TransactionFeeMapper>();
             Register<ITransactionFeeDisplay, TransactionFeeDisplay>();
+            Register<IConfigProvider, ConfigProvider>();
 
         }
         static readonly IDictionary<Type, Type> types = new Dictionary<Type, Type>();
